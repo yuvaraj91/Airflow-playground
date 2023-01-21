@@ -3,33 +3,7 @@ AIRFLOW_WEBSERVER_CONTAINER = airflow-webserver
 AIRFLOW_SCHEDULER_CONTAINER = airflow-scheduler
 VENV = ./venv
 
-BOLD=$(shell tput bold)
-RED=$(shell tput setaf 1)
-GREEN=$(shell tput setaf 2)
-YELLOW=$(shell tput setaf 3)
-RESET=$(shell tput sgr0)
-
-.PHONY: default build clean-venv init-venv airflow-down airflow-up isort-fix flake8 pytest test database-up
-
-AIRFLOW_MESSAGE = "Login to Airflow at $(GREEN)http://localhost:8080$(RESET)\
-\nUsername: $(GREEN)airflow$(RESET)\
-\nPassword: $(GREEN)airflow$(RESET)\
-\nWhen running for the first time, it can take up to 5 minutes before the user is available.\
-\nYou can run $(BOLD)docker logs --follow data-airflow-init-1$(RESET) to see if the user is being created."
-
-default:
-	@echo "The following commands are available:"
-	@echo " init-venv - initialize a virtual environment"
-	@echo " airflow-up - bring airflow up"
-	@echo " airflow-down - bring airflow down"
-	@echo " airflow-webserver-logs - print airflow webserver logs continuously"
-	@echo " airflow-scheduler-logs - print airflow scheduler logs continuously"
-	@echo " airflow-webserver-shell - attach to the webserver container running airflow"
-	@echo " airflow-scheduler-shell - attach to the scheduler container running airflow"
-	@echo " isort-fix - fix the imports in Python files"
-	@echo " flake8 - Check python code formatting based on flake8"
-	@echo " pytest - Run unit tests"
-	@echo " test - Fix imports, code style, and run unit tests"
+.PHONY: default build clean-venv init-venv airflow-down airflow-up
 
 .PHONY: activate
 activate:
@@ -93,26 +67,3 @@ init-venv: clean-venv
 	pip3 install -r requirements-dev.txt; \
 	pip3 install -r requirements-providers.txt; \
 	pip3 install -r requirements.txt;
-
-.PHONY: init-local
-init-local: clean-local
-	. ./venv/bin/activate; \
-	./.local/init
-
-.PHONY: flake8
-flake8:
-	. ./venv/bin/activate; \
-	python3 -m flake8 .
-
-.PHONY: isort-fix
-isort-fix:
-	. ./venv/bin/activate; \
-	python3 -m isort . --skip venv --skip logs
-
-.PHONY: pytest
-pytest:
-	. ./venv/bin/activate; \
-	AIRFLOW_HOME=$(REPO_ROOT) python3 -m pytest tests -vv --disable-pytest-warnings
-
-.PHONY: test
-test: isort-fix flake8 pytest
